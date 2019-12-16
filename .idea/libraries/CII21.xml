@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="CII21">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/CII2/out/artifacts/CII2_jar/CII2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

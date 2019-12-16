@@ -1,0 +1,67 @@
+package Questions;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class QuestionsGui extends JFrame
+{
+    private Questions myAgent;
+
+    public JTextField  questComp; //questName, questSubj,
+
+    QuestionsGui(Questions q)
+    {
+        super(q.getLocalName());
+        myAgent = q;
+
+
+
+        JPanel p = new JPanel();
+        p.setLayout(new GridLayout(2,2));  //3-2
+
+        p.add(new JLabel("Загрузить данные"), BorderLayout.CENTER);
+
+        JButton addButton = new JButton("Загрузить данные с вопросами");
+        addButton.addActionListener(e -> {
+            String nameQ = "";
+            String subjQ = "";
+            int t=30;
+            int compQ=(int) Integer.parseInt(String.valueOf(t));
+            try {
+                myAgent.addQuestion(nameQ , subjQ, compQ);//(nameQ, subjQ, compQ);
+            } catch (Exception e1) {
+
+                e1.printStackTrace();
+            }
+
+            questComp.setText("compQ");
+
+        });
+
+        p = new JPanel();
+        p.add(addButton);
+        getContentPane().add(p, BorderLayout.SOUTH);
+
+        setSize(320, 70);
+
+        addWindowListener(new	WindowAdapter() {
+            public void windowClosing(WindowEvent e) {
+                myAgent.doDelete();
+            }
+        } );
+
+        setResizable(true); //..(false);
+
+    }
+
+    public void showGui() {
+
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        int centerX = (int)screenSize.getWidth() / 2;
+        int centerY = (int)screenSize.getHeight() / 2;
+        setLocation(centerX - getWidth() / 2, centerY - getHeight() / 2);
+        super.setVisible(true);
+    }
+
+}
