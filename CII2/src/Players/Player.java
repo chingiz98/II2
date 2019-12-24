@@ -3,13 +3,21 @@ package Players;
 import jade.core.Agent;
 import jade.core.behaviours.CyclicBehaviour;
 
-public class Player extends Agent {
-    String name;
-    int rating;
-    boolean sex;
+import java.io.Serializable;
 
-    CyclicBehaviour behaviour;
+public class Player implements Serializable {
+    public String name;
+    public int rating;
+    public boolean sex;
 
+
+    public Player(String name, int rating, boolean sex){
+        this.name = name;
+        this.rating = rating;
+        this.sex = sex;
+    }
+
+/*
     @Override
     protected void setup() {
         super.setup();
@@ -20,4 +28,6 @@ public class Player extends Agent {
 
         System.out.println("Agent " + getAID() + " started");
     }
+    */
+
 }

@@ -109,7 +109,7 @@ public class Questions extends Agent
                 catch (IOException ex)
                 {}
                 //КОНЕЦ ВСТАВКИ
-                Random rnd = new Random();
+
                 ContainerController cc =  getContainerController();
                 for(int count = 1; count < N ; count++)
                     try

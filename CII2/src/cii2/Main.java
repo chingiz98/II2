@@ -28,7 +28,7 @@ public class Main
         {
 
 
-            players = cc.createNewAgent("players"+System.currentTimeMillis(), "Players.Players", args);
+            players = cc.createNewAgent("players", "Players.Players", args);
             players.start();
             /*
             questions = cc.createNewAgent("questions"+System.currentTimeMillis(),
