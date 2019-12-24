@@ -1,18 +1,18 @@
-﻿player1 50
-player2 129
-player3 345
-player4 77
-player5 30
-player6 72
-player7 92
-player8 234
-player9 320
-player10 170
-player11 140
-player12 120
-player13 135
-player14 261
-player15 44
-player16 48
-player17 89
-player18 111
+﻿player1 50 1
+player2 129 0
+player3 345 1
+player4 77 0
+player5 30 1
+player6 72 1
+player7 92 1
+player8 234 1
+player9 320 1
+player10 170 1
+player11 140 0
+player12 120 0
+player13 135 0
+player14 261 0
+player15 44 0
+player16 48 1
+player17 89 1
+player18 111 1

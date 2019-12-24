@@ -11,6 +11,9 @@ public class Main
     static AgentController questions;
     static AgentController tickets;
 
+    static AgentController players;
+    //static AgentController tickets;
+
     public static void main(String[] args)
     {
         Runtime rt = Runtime.instance();
@@ -19,8 +22,15 @@ public class Main
         ContainerController cc = rt.createMainContainer(p);
         rt.setCloseVM(true);
 
+        System.out.println("SAS");
+
         try
         {
+
+
+            players = cc.createNewAgent("players"+System.currentTimeMillis(), "Players.Players", args);
+            players.start();
+            /*
             questions = cc.createNewAgent("questions"+System.currentTimeMillis(),
                                           "Questions.Questions",
                                           args);
@@ -29,6 +39,8 @@ public class Main
                                         "Tickets.Tickets",
                                         args);
             tickets.start();
+
+             */
 
         }
         catch (StaleProxyException e)
