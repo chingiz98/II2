@@ -2,7 +2,6 @@ import Players.Player;
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
-import jade.core.behaviours.CyclicBehaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
@@ -20,6 +19,10 @@ public class Team extends Agent {
     private final int PLAYERS_SENDER = 4;
     private final int WAITING_FOR_OPTIMIZED_USER_ARRAY = 5;
     private final int TRYING_TO_OPTIMIZE = 6;
+    private final int PLAYERS_SENDER_STEP_2 = 7;
+    private final int PLAYERS_RECEIVER_STEP_2 = 8;
+    private final int TRYING_TO_OPTIMIZE_STEP_2 = 9;
+    private final int WAITING_FOR_OPTIMIZED_USER_ARRAY_STEP_2 = 10;
 
 
     AID LEFT;
@@ -34,7 +37,7 @@ public class Team extends Agent {
     int avg = 0;
     int teamsCount = 0;
 
-
+    int anotherMatchRating = 0;
 
     @Override
     protected void setup() {
@@ -43,6 +46,8 @@ public class Team extends Agent {
         String name = getLocalName();
 
         System.out.println(name);
+
+
 
     }
 
@@ -81,6 +86,8 @@ public class Team extends Agent {
 
                         calcAvg();
 
+
+
                         if(players.size() == TEAM_SIZE)
                             behaviour = PRE_OPTIMIZING;
                     }
@@ -92,6 +99,14 @@ public class Team extends Agent {
 
                     if(msg != null) {
                         if(msg.getOntology() != null && msg.getOntology().equals("teamsCount")){
+                            System.out.println("-----------------");
+                            System.out.println(getLocalName() + " STARTED");
+                            for (Player p : players) {
+                                System.out.println(p.name + " " + p.rating);
+                            }
+
+                            System.out.println("AVG: " + avgRating(players));
+                            System.out.println("-----------------");
                             teamsCount = Integer.parseInt(msg.getContent());
                             behaviour = OPTIMIZING_BEGIN;
                         }
@@ -132,8 +147,9 @@ public class Team extends Agent {
                     if(msg != null) {
                         if(msg.getOntology() != null && msg.getOntology().equals("playersParcel")){
                             try {
-                                receivedPlayers = (ArrayList<Player>) msg.getContentObject();
-                                System.out.println("PLAYERS RECEIVED " + getLocalName());
+                                receivedPlayers.clear();
+                                receivedPlayers.addAll((ArrayList<Player>) msg.getContentObject());
+                                System.out.println("!PLAYERS RECEIVED! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
@@ -150,8 +166,8 @@ public class Team extends Agent {
 
                     if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
 
-                        behaviour = WAITING_FOR_OPTIMIZED_USER_ARRAY;
-                        done = true;
+                        behaviour = PLAYERS_SENDER_STEP_2;
+                        //done = true;
                     }
 
                     int rating = 0;
@@ -195,28 +211,30 @@ public class Team extends Agent {
                         int delta1 = Math.abs(rating - t1rating);
                         int delta2 = Math.abs(rating - t2rating);
 
-                        if(delta1 < deltaCurrentTeamRating){
+
+                        if(delta1 < deltaCurrentTeamRating && delta2 < deltaReceivedTeamRating){
                             result1.clear();
                             result1.addAll(t1);
                             //players.clear();
                             //players.addAll(t1);
-                            currentTeamRating = avgRating(t1);
+                            //currentTeamRating = avgRating(t1);
                             deltaCurrentTeamRating = delta1;
-                        }
 
-                        if(delta2 < deltaReceivedTeamRating){
                             result2.clear();
                             result2.addAll(t2);
                             //receivedPlayers.clear();
                             //receivedPlayers.addAll(t2);
-                            receivedTeamRating = avgRating(t2);
+                            //receivedTeamRating = avgRating(t2);
                             deltaReceivedTeamRating = delta2;
                         }
 
                     }
                     agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
                     sendMsg(ACLMessage.CFP, new AID("team" + (agentNumber - 1), AID.ISLOCALNAME), "optimizedPlayers", result2);
-                    players = result1;
+                    players.clear();
+                    players.addAll(result1);
+
+                    anotherMatchRating = (avgRating(result1) + avgRating(result2)) / 2;
 
                     break;
 
@@ -227,20 +245,170 @@ public class Team extends Agent {
                     if(msg != null) {
                         if(msg.getOntology() != null && msg.getOntology().equals("optimizedPlayers")){
                             try {
-                                players = (ArrayList<Player>) msg.getContentObject();
-                                System.out.println("PLAYERS RECEIVED " + getLocalName());
+                                players.clear();
+                                players.addAll((ArrayList<Player>) msg.getContentObject());
+                                System.out.println("!!PLAYERS RECEIVED!! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
-                                done = true;
+                                //done = true;
+                                //return;
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
-                            behaviour = TRYING_TO_OPTIMIZE;
+                            behaviour = PLAYERS_RECEIVER_STEP_2;
+                        }
+                    }
+                    break;
+
+                case PLAYERS_SENDER_STEP_2:
+
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
+
+                        behaviour = WAITING_FOR_OPTIMIZED_USER_ARRAY_STEP_2;
+
+                    }
+
+                    agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
+                    int receiverNum = agentNumber + 1;
+                    if(agentNumber == teamsCount){
+                        receiverNum = 1;
+                    }
+                    System.out.println("SEND " + agentNumber + " " + receiverNum);
+                    sendMsg(ACLMessage.CFP, new AID("team" + receiverNum, AID.ISLOCALNAME), "playersParcel2", new Object[] {anotherMatchRating, players});
+                    break;
+                case PLAYERS_RECEIVER_STEP_2:
+
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null) {
+                        if(msg.getOntology() != null && msg.getOntology().equals("playersParcel2")){
+                            try {
+                                receivedPlayers.clear();
+                                receivedPlayers.addAll((ArrayList<Player>) ((Object[]) msg.getContentObject())[1]);
+                                anotherMatchRating = (int) ((Object[]) msg.getContentObject())[0];
+                                System.out.println("!!!PLAYERS RECEIVED!!! " + getLocalName());
+                                sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+
+                            } catch (UnreadableException e) {
+                                e.printStackTrace();
+                            }
+                            behaviour = TRYING_TO_OPTIMIZE_STEP_2;
+                        }
+                    }
+                    break;
+
+                case TRYING_TO_OPTIMIZE_STEP_2:
+
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
+
+                        behaviour = PLAYERS_SENDER_STEP_2;
+                        done = true;
+                        return;
+                    }
+
+
+
+                    rating = 0;
+                    currentTeamRating = avgRating(players);
+                    receivedTeamRating = avgRating(receivedPlayers);
+                    rating = (currentTeamRating + receivedTeamRating) / 2;
+
+                    deltaCurrentTeamRating = Math.abs(rating - currentTeamRating);
+                    deltaReceivedTeamRating = Math.abs(anotherMatchRating - receivedTeamRating);
+
+                    t1 = new ArrayList<>();
+                    t2 = new ArrayList<>();
+
+                    for(int i = 0; i < Math.pow(2, TEAM_SIZE); i++){
+                        boolean arr[] = toBinary(i, TEAM_SIZE);
+                        t1.clear();
+                        t2.clear();
+                        for(int j = 0; j < arr.length; j++){
+                            if(arr[j]) {
+                                t1.add(players.get(j));
+                                t2.add(receivedPlayers.get(j));
+                            } else {
+                                t1.add(receivedPlayers.get(j));
+                                t2.add(players.get(j));
+                            }
+                        }
+
+                        int t1rating = 0;
+                        for (Player p : t1) {
+                            t1rating += p.rating;
+                        }
+
+                        int t2rating = 0;
+                        for (Player p : t2) {
+                            t2rating += p.rating;
+                        }
+
+                        t1rating /= TEAM_SIZE;
+                        t2rating /= TEAM_SIZE;
+
+                        int delta1 = Math.abs(rating - t1rating);
+                        int delta2 = Math.abs(anotherMatchRating - t2rating);
+
+
+                        if(delta1 < deltaCurrentTeamRating && delta2 < deltaReceivedTeamRating){
+                            result1.clear();
+                            result1.addAll(t1);
+                            //players.clear();
+                            //players.addAll(t1);
+                            //currentTeamRating = avgRating(t1);
+                            deltaCurrentTeamRating = delta1;
+
+                            result2.clear();
+                            result2.addAll(t2);
+                            //receivedPlayers.clear();
+                            //receivedPlayers.addAll(t2);
+                            //receivedTeamRating = avgRating(t2);
+                            deltaReceivedTeamRating = delta2;
+                        }
+
+                    }
+
+
+                    agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
+                    receiverNum = agentNumber - 1;
+                    if(agentNumber == 1){
+                        receiverNum = 4;
+                    }
+                    sendMsg(ACLMessage.CFP, new AID("team" + receiverNum, AID.ISLOCALNAME), "optimizedPlayers", result2);
+                    players.clear();
+                    players.addAll(result1);
+                    System.out.println("ADDED");
+                    int a = 5;
+                    //done = true;
+                    break;
+
+                case WAITING_FOR_OPTIMIZED_USER_ARRAY_STEP_2:
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null) {
+                        if(msg.getOntology() != null && msg.getOntology().equals("optimizedPlayers")){
+                            try {
+                                players.clear();
+                                players.addAll ((ArrayList<Player>) msg.getContentObject());
+                                System.out.println("!!!!PLAYERS RECEIVED!!!! " + getLocalName());
+                                sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+                                done = true;
+                                return;
+                            } catch (UnreadableException e) {
+                                e.printStackTrace();
+                            }
+                            behaviour = PLAYERS_RECEIVER_STEP_2;
                         }
                     }
                     break;
             }
-
-
 
         }
 
@@ -252,9 +420,9 @@ public class Team extends Agent {
                 for (Player p : players) {
                     System.out.println(p.name + " " + p.rating);
                 }
+
+                System.out.println("AVG: " + avgRating(players));
                 System.out.println("-----------------");
-
-
             }
 
             return done;
