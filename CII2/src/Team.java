@@ -27,6 +27,9 @@ public class Team extends Agent {
     ArrayList<Player> players = new ArrayList<>();
     ArrayList<Player> receivedPlayers = new ArrayList<>();
 
+    ArrayList<Player> result1 = new ArrayList<>();
+    ArrayList<Player> result2 = new ArrayList<>();
+
 
     int avg = 0;
     int teamsCount = 0;
@@ -193,22 +196,27 @@ public class Team extends Agent {
                         int delta2 = Math.abs(rating - t2rating);
 
                         if(delta1 < deltaCurrentTeamRating){
-                            players.clear();
-                            players.addAll(t1);
+                            result1.clear();
+                            result1.addAll(t1);
+                            //players.clear();
+                            //players.addAll(t1);
                             currentTeamRating = avgRating(t1);
                             deltaCurrentTeamRating = delta1;
                         }
 
                         if(delta2 < deltaReceivedTeamRating){
-                            receivedPlayers.clear();
-                            receivedPlayers.addAll(t2);
+                            result2.clear();
+                            result2.addAll(t2);
+                            //receivedPlayers.clear();
+                            //receivedPlayers.addAll(t2);
                             receivedTeamRating = avgRating(t2);
                             deltaReceivedTeamRating = delta2;
                         }
 
                     }
                     agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
-                    sendMsg(ACLMessage.CFP, new AID("team" + (agentNumber - 1), AID.ISLOCALNAME), "optimizedPlayers", receivedPlayers);
+                    sendMsg(ACLMessage.CFP, new AID("team" + (agentNumber - 1), AID.ISLOCALNAME), "optimizedPlayers", result2);
+                    players = result1;
 
                     break;
 
