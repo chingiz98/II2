@@ -11,19 +11,19 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.wrapper.ContainerController;
+import org.paukov.combinatorics3.Generator;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.util.ArrayList;
+import java.util.stream.Collectors;
 
 public class Players extends Agent {
 
 
     private int                 minComp = 0, maxComp = 0;
     private int lastQFound = 0;
-
-
     private int playersCount = 0;
 
     private int avgRating = 0;
@@ -38,6 +38,12 @@ public class Players extends Agent {
         super.setup();
 
 
+        System.out.println("LENGTH IS ");
+        ArrayList arr = (ArrayList) Generator.combination("red", "black", "white", "green", "blue", "white", "green", "blue")
+                .simple(4).stream().collect(Collectors.toList());
+
+        System.out.println(arr.size());
+        System.out.println(arr.get(0));
 
         String fileName = "inp.txt";
         String content;
@@ -73,6 +79,26 @@ public class Players extends Agent {
 
             cc.createNewAgent("team1", "Team", new Object[]{}).start();
             cc.createNewAgent("team2", "Team", new Object[]{}).start();
+            cc.createNewAgent("team3", "Team", new Object[]{}).start();
+            cc.createNewAgent("team4", "Team", new Object[]{}).start();
+
+            teamsCount = 4;
+
+            int counter = 0;
+            int currTeam = 1;
+            for(int i = 0; i < players.size(); i++){
+                if(counter == 4){
+                    counter = 0;
+                    currTeam++;
+                }
+                counter++;
+                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
+                msg.setContent("player_msg");
+                msg.setContentObject(players.get(i));
+                msg.addReceiver(new AID("team" + currTeam, AID.ISLOCALNAME));
+                send(msg);
+            }
+
 
 
 
@@ -84,6 +110,7 @@ public class Players extends Agent {
 
              */
 
+            /*
             for (int i = 0; i < players.size() / 2; i++) {
                 ACLMessage msg = new ACLMessage(ACLMessage.CFP);
                 msg.setContent("player_msg");
@@ -100,6 +127,9 @@ public class Players extends Agent {
                 msg.addReceiver(new AID("team2", AID.ISLOCALNAME));
                 send(msg);
             }
+
+             */
+
 /*
 
             for (int i = 0; i < playersAids.size() / 2; i++) {

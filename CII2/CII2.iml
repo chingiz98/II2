@@ -11,5 +11,6 @@
     <orderEntry type="library" name="CII21" level="project" />
     <orderEntry type="library" name="CII2" level="project" />
     <orderEntry type="module" module-name="jade" />
+    <orderEntry type="library" name="com.github.dpaukov:combinatoricslib3:3.3.0" level="project" />
   </component>
 </module>
