@@ -39,6 +39,9 @@ public class Team extends Agent {
 
     int anotherMatchRating = 0;
 
+    int temp_count = 0;
+    int temp_count2 = 0;
+
     @Override
     protected void setup() {
         super.setup();
@@ -149,7 +152,7 @@ public class Team extends Agent {
                             try {
                                 receivedPlayers.clear();
                                 receivedPlayers.addAll((ArrayList<Player>) msg.getContentObject());
-                                System.out.println("!PLAYERS RECEIVED! " + getLocalName());
+                                //System.out.println("!PLAYERS RECEIVED! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
@@ -166,6 +169,13 @@ public class Team extends Agent {
 
                     if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
 
+
+                        temp_count++;
+                        if(temp_count == 3){
+                            done = true;
+                            return;
+                        }
+
                         behaviour = PLAYERS_SENDER_STEP_2;
                         //done = true;
                     }
@@ -180,6 +190,8 @@ public class Team extends Agent {
 
                     ArrayList<Player> t1 = new ArrayList<>();
                     ArrayList<Player> t2 = new ArrayList<>();
+
+                    boolean conditionFlag = false;
 
                     for(int i = 0; i < Math.pow(2, TEAM_SIZE); i++){
                         boolean arr[] = toBinary(i, TEAM_SIZE);
@@ -226,13 +238,23 @@ public class Team extends Agent {
                             //receivedPlayers.addAll(t2);
                             //receivedTeamRating = avgRating(t2);
                             deltaReceivedTeamRating = delta2;
+                            conditionFlag = true;
                         }
 
                     }
+
+                    if(!conditionFlag){
+                        result2.clear();
+                        result2.addAll(receivedPlayers);
+                    }
+
                     agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
                     sendMsg(ACLMessage.CFP, new AID("team" + (agentNumber - 1), AID.ISLOCALNAME), "optimizedPlayers", result2);
-                    players.clear();
-                    players.addAll(result1);
+                    if(conditionFlag){
+                        players.clear();
+                        players.addAll(result1);
+                    }
+
 
                     anotherMatchRating = (avgRating(result1) + avgRating(result2)) / 2;
 
@@ -247,10 +269,13 @@ public class Team extends Agent {
                             try {
                                 players.clear();
                                 players.addAll((ArrayList<Player>) msg.getContentObject());
-                                System.out.println("!!PLAYERS RECEIVED!! " + getLocalName());
+                                //System.out.println("!!PLAYERS RECEIVED!! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
-                                //done = true;
-                                //return;
+                                temp_count2++;
+                                if(temp_count2 == 3){
+                                    done = true;
+                                    return;
+                                }
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
@@ -289,7 +314,7 @@ public class Team extends Agent {
                                 receivedPlayers.clear();
                                 receivedPlayers.addAll((ArrayList<Player>) ((Object[]) msg.getContentObject())[1]);
                                 anotherMatchRating = (int) ((Object[]) msg.getContentObject())[0];
-                                System.out.println("!!!PLAYERS RECEIVED!!! " + getLocalName());
+                                //System.out.println("!!!PLAYERS RECEIVED!!! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
 
                             } catch (UnreadableException e) {
@@ -307,14 +332,17 @@ public class Team extends Agent {
 
                     if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
 
-                        behaviour = PLAYERS_SENDER_STEP_2;
-                        done = true;
+
+
+                        behaviour = PLAYERS_SENDER;
+                        //TODO PLAYERS_SENDER
+
                         return;
                     }
 
 
 
-                    rating = 0;
+
                     currentTeamRating = avgRating(players);
                     receivedTeamRating = avgRating(receivedPlayers);
                     rating = (currentTeamRating + receivedTeamRating) / 2;
@@ -324,6 +352,8 @@ public class Team extends Agent {
 
                     t1 = new ArrayList<>();
                     t2 = new ArrayList<>();
+
+                    conditionFlag = false;
 
                     for(int i = 0; i < Math.pow(2, TEAM_SIZE); i++){
                         boolean arr[] = toBinary(i, TEAM_SIZE);
@@ -370,6 +400,7 @@ public class Team extends Agent {
                             //receivedPlayers.addAll(t2);
                             //receivedTeamRating = avgRating(t2);
                             deltaReceivedTeamRating = delta2;
+                            conditionFlag = true;
                         }
 
                     }
@@ -380,10 +411,21 @@ public class Team extends Agent {
                     if(agentNumber == 1){
                         receiverNum = 4;
                     }
+
+                    if(!conditionFlag){
+                        result2.clear();
+                        result2.addAll(receivedPlayers);
+                    }
+
+
+                    System.out.println("SENT " + getLocalName() + " " + result2.size());
                     sendMsg(ACLMessage.CFP, new AID("team" + receiverNum, AID.ISLOCALNAME), "optimizedPlayers", result2);
-                    players.clear();
-                    players.addAll(result1);
-                    System.out.println("ADDED");
+                    if(conditionFlag){
+                        players.clear();
+                        players.addAll(result1);
+                    }
+
+                    System.out.println("ADDED " + getLocalName() + " " + result1.size());
                     int a = 5;
                     //done = true;
                     break;
@@ -397,14 +439,18 @@ public class Team extends Agent {
                             try {
                                 players.clear();
                                 players.addAll ((ArrayList<Player>) msg.getContentObject());
-                                System.out.println("!!!!PLAYERS RECEIVED!!!! " + getLocalName());
+                                //System.out.println("!!!!PLAYERS RECEIVED!!!! " + getLocalName() + " SIZE " + players.size());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
-                                done = true;
-                                return;
+
+                                //TODO PLAYERS_RECEIVER
+
+
+
+                                behaviour = PLAYERS_RECEIVER;
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
-                            behaviour = PLAYERS_RECEIVER_STEP_2;
+
                         }
                     }
                     break;
