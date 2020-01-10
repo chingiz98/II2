@@ -10,12 +10,11 @@ import jade.domain.FIPAAgentManagement.ServiceDescription;
 import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
+import jade.lang.acl.UnreadableException;
 import jade.wrapper.ContainerController;
 import org.paukov.combinatorics3.Generator;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.stream.Collectors;
 
@@ -101,57 +100,6 @@ public class Players extends Agent {
 
 
 
-
-            /*
-            for(int i = 0; i < playersCount; i++){
-                AID id = new AID("playerAgent" + i, AID.ISLOCALNAME);
-                playersAids.add(id);
-            }
-
-             */
-
-            /*
-            for (int i = 0; i < players.size() / 2; i++) {
-                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-                msg.setContent("player_msg");
-                msg.setContentObject(players.get(i));
-                AID a = new AID("team1", AID.ISLOCALNAME);
-                msg.addReceiver(a);
-                send(msg);
-            }
-
-            for (int i = players.size() / 2; i < players.size(); i++) {
-                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-                msg.setContent("player_msg");
-                msg.setContentObject(players.get(i));
-                msg.addReceiver(new AID("team2", AID.ISLOCALNAME));
-                send(msg);
-            }
-
-             */
-
-/*
-
-            for (int i = 0; i < playersAids.size() / 2; i++) {
-                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-                msg.setContent("player_msg");
-                msg.setContentObject(playersAids.get(i));
-                AID a = new AID("team1", AID.ISLOCALNAME);
-                msg.addReceiver(a);
-                send(msg);
-            }
-
-            for (int i = playersAids.size() / 2; i < playersAids.size(); i++) {
-                ACLMessage msg = new ACLMessage(ACLMessage.CFP);
-                msg.setContent("player_msg");
-                msg.setContentObject(playersAids.get(i));
-                msg.addReceiver(new AID("team2", AID.ISLOCALNAME));
-                send(msg);
-            }
-
-            */
-
-
         } catch (Exception e){
 
         }
@@ -179,30 +127,186 @@ public class Players extends Agent {
 
     private class PlayersBehaviour extends CyclicBehaviour {
 
-        int behaviour = 0;
+        private final int WAITING_FOR_MESSAGE = 0;
+        private final int MAKING_DECISION = 1;
+
+        private final int BROADCAST_CONTINUE = 2;
+        private final int BROADCAST_STOP = 3;
+
+        int behaviour = WAITING_FOR_MESSAGE;
         MessageTemplate mt;
 
 
+        byte flags[] = new byte[teamsCount + 1];
+        ArrayList<Integer> ratings = new ArrayList<>();
+        int previousAvg = 0;
+        int retries = 0;
+
+        int receivedCnt = 0;
         @Override
         public void action() {
 
-            mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
-            ACLMessage msg = myAgent.blockingReceive(mt, 100);
 
-            if(msg != null){
-                if(msg.getOntology().equals("getTeamsCount"))
-                {
-                    ACLMessage reply = new ACLMessage(ACLMessage.CFP);
-                    reply.setContent(String.valueOf(teamsCount));
-                    reply.setOntology("teamsCount");
-                    reply.addReceiver(msg.getSender());
-                    send(reply);
-                }
+
+
+            switch (behaviour) {
+                case WAITING_FOR_MESSAGE:
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+                    ACLMessage msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null){
+                        if(msg.getOntology().equals("getTeamsCount"))
+                        {
+                            ACLMessage reply = new ACLMessage(ACLMessage.CFP);
+                            reply.setContent(String.valueOf(teamsCount));
+                            reply.setOntology("teamsCount");
+                            reply.addReceiver(msg.getSender());
+                            send(reply);
+                        }
+
+                        if(msg.getOntology().equals("optResult")){
+                            int agentNumber = Integer.parseInt(msg.getSender().getLocalName().replace("team", ""));
+                            if(flags[agentNumber] == 0) {
+                                flags[agentNumber] = 1;
+                                try {
+                                    ratings.clear();
+                                    ratings.add((int) msg.getContentObject());
+                                } catch (UnreadableException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
+                            if(sum(flags) == teamsCount / 2){
+                                behaviour = MAKING_DECISION;
+                                flags = new byte[teamsCount + 1];
+                            }
+
+                        }
+                    }
+                    break;
+
+                case MAKING_DECISION:
+
+                    if(retries == 0){
+                        previousAvg = avgRating(ratings);
+                    }
+
+                    if(retries == 5){
+                        behaviour = BROADCAST_STOP;
+                        //broadcast("stop");
+                        System.out.println("stopping " + retries );
+                        retries = 0;
+                        //behaviour = WAITING_FOR_MESSAGE;
+                        return;
+                    }
+
+                    if(avgRating(ratings) < previousAvg){
+                        previousAvg = avgRating(ratings);
+                        retries = 0;
+                        System.out.println("new best " + previousAvg );
+                        behaviour = BROADCAST_CONTINUE;
+                        //broadcast("continue");
+                    } else {
+                        retries++;
+                        //broadcast("continue");
+
+                        System.out.println("retrying " + retries + " AVG: " + avgRating(ratings) + " prevAVG: " + previousAvg);
+                        behaviour = BROADCAST_CONTINUE;
+                    }
+
+
+                    //behaviour = WAITING_FOR_MESSAGE;
+                    break;
+
+                case BROADCAST_CONTINUE:
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null && msg.getOntology().equals("received")) {
+                        receivedCnt++;
+                        if(receivedCnt == teamsCount){
+                            behaviour = WAITING_FOR_MESSAGE;
+                            receivedCnt = 0;
+                            return;
+                        }
+
+                    }
+
+                    broadcast("continue");
+
+                    break;
+
+                case BROADCAST_STOP:
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null && msg.getOntology().equals("received")) {
+                        receivedCnt++;
+                        if(receivedCnt == teamsCount){
+                            behaviour = WAITING_FOR_MESSAGE;
+                            receivedCnt = 0;
+                            return;
+                        }
+
+                    }
+
+                    broadcast("stop");
+
+                    break;
+
             }
 
 
 
 
+
+
+        }
+
+
+        private void broadcast(String msg){
+
+            int currTeam = 1;
+            for(int i = 0; i < teamsCount; i++){
+                sendMsg(ACLMessage.CFP, new AID("team" + currTeam, AID.ISLOCALNAME), msg);
+                currTeam++;
+            }
+        }
+
+        private int avgRating(ArrayList<Integer> players){
+            int rating = 0;
+            for (int p : players) {
+                rating += p;
+            }
+
+            return rating / players.size();
+        }
+
+        private int sum(byte[] a){
+            int s = 0;
+            for (int i = 0; i < a.length; i++){
+                s += a[i];
+            }
+
+            return s;
+        }
+
+        private void sendMsg(int msgType, AID r, String ontology, Serializable obj){
+            ACLMessage msg = new ACLMessage(msgType);
+            msg.setOntology(ontology);
+            if(obj != null) {
+                try {
+                    msg.setContentObject(obj);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            msg.addReceiver(r);
+            send(msg);
+        }
+
+        private void sendMsg(int msgType, AID r, String ontology){
+            sendMsg(msgType, r, ontology, null);
         }
     }
 

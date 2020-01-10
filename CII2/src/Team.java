@@ -165,6 +165,42 @@ public class Team extends Agent {
                     }
                     break;
 
+
+                case WAITING_FOR_APPROVAL:
+                    agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
+                    mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+                    msg = myAgent.blockingReceive(mt, 100);
+
+                    if(msg != null && msg.getOntology() != null) {
+                        //System.out.println("Ont  " + msg.getOntology());
+                        if(msg.getOntology().equals("stop")){
+                            //System.out.println("STOP RECEIVED AGENT " + agentNumber);
+                            sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+                            done = true;
+                            return;
+                        }
+                        if(msg.getOntology().equals("continue")){
+                            //System.out.println("CONTINUE RECEIVED AGENT " + agentNumber);
+                            sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+                            if(agentNumber % 2 == 0){
+                                behaviour = PLAYERS_SENDER_STEP_2;
+                            } else {
+                                behaviour = PLAYERS_RECEIVER_STEP_2;
+                            }
+                        }
+
+
+                    }
+
+
+                    if(agentNumber % 2 == 0){
+                        int difference = Math.abs(avgRating(result1) - avgRating(result2));
+                        //System.out.println("DIFF " + avgRating(result1) + " " + avgRating(result2) + " num " + agentNumber);
+                        sendMsg(ACLMessage.REQUEST, new AID("players", AID.ISLOCALNAME), "optResult", difference);
+                    }
+
+                    break;
+
                 case TRYING_TO_OPTIMIZE_STEP_1:
 
                     mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
@@ -172,14 +208,18 @@ public class Team extends Agent {
 
                     if(msg != null && msg.getOntology() != null && msg.getOntology().equals("received")){
 
+                        behaviour = WAITING_FOR_APPROVAL;
 
+                        /*
                         temp_count++;
                         if(temp_count == 3){
                             done = true;
                             return;
                         }
 
-                        behaviour = PLAYERS_SENDER_STEP_2;
+                         */
+
+                        //behaviour = PLAYERS_SENDER_STEP_2;
                         //done = true;
                     }
 
@@ -260,15 +300,21 @@ public class Team extends Agent {
                                 players.addAll((ArrayList<Player>) msg.getContentObject());
                                 //System.out.println("!!PLAYERS RECEIVED!! " + getLocalName());
                                 sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+
+                                behaviour = WAITING_FOR_APPROVAL;
+
+                                /*
                                 temp_count2++;
                                 if(temp_count2 == 3){
                                     done = true;
                                     return;
                                 }
+
+                                 */
                             } catch (UnreadableException e) {
                                 e.printStackTrace();
                             }
-                            behaviour = PLAYERS_RECEIVER_STEP_2;
+                            //behaviour = PLAYERS_RECEIVER_STEP_2;
                         }
                     }
                     break;
@@ -289,7 +335,7 @@ public class Team extends Agent {
                     if(agentNumber == teamsCount){
                         receiverNum = 1;
                     }
-                    System.out.println("SEND " + agentNumber + " " + receiverNum);
+                    //System.out.println("SEND " + agentNumber + " " + receiverNum);
                     sendMsg(ACLMessage.CFP, new AID("team" + receiverNum, AID.ISLOCALNAME), "playersParcel2", new Object[] {anotherMatchRating, players});
                     break;
                 case PLAYERS_RECEIVER_STEP_2:
@@ -388,14 +434,14 @@ public class Team extends Agent {
                     }
 
 
-                    System.out.println("SENT " + getLocalName() + " " + result2.size());
+                    //System.out.println("SENT " + getLocalName() + " " + result2.size());
                     sendMsg(ACLMessage.CFP, new AID("team" + receiverNum, AID.ISLOCALNAME), "optimizedPlayers", result2);
                     if(conditionFlag){
                         players.clear();
                         players.addAll(result1);
                     }
 
-                    System.out.println("ADDED " + getLocalName() + " " + result1.size());
+                    //System.out.println("ADDED " + getLocalName() + " " + result1.size());
                     int a = 5;
                     //done = true;
                     break;
