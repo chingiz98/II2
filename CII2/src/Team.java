@@ -425,7 +425,7 @@ public class Team extends Agent {
                     agentNumber = Integer.parseInt(getLocalName().replace("team", ""));
                     receiverNum = agentNumber - 1;
                     if(agentNumber == 1){
-                        receiverNum = 4;
+                        receiverNum = teamsCount;
                     }
 
                     if(!conditionFlag){

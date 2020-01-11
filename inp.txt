@@ -16,3 +16,9 @@ player15 44 0
 player16 48 1
 player17 89 1
 player18 111 1
+player19 324 0
+player20 23 0
+player21 82 1
+player22 99 1
+player23 171 0
+player24 190 0

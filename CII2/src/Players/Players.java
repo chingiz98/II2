@@ -44,7 +44,7 @@ public class Players extends Agent {
 
         System.out.println(arr.size());
         System.out.println(arr.get(0));
-        
+
          */
 
         String fileName = "inp.txt";
@@ -83,8 +83,11 @@ public class Players extends Agent {
             cc.createNewAgent("team2", "Team", new Object[]{}).start();
             cc.createNewAgent("team3", "Team", new Object[]{}).start();
             cc.createNewAgent("team4", "Team", new Object[]{}).start();
+            cc.createNewAgent("team5", "Team", new Object[]{}).start();
+            cc.createNewAgent("team6", "Team", new Object[]{}).start();
 
-            teamsCount = 4;
+
+            teamsCount = 6;
 
             int counter = 0;
             int currTeam = 1;
@@ -171,7 +174,7 @@ public class Players extends Agent {
                             if(flags[agentNumber] == 0) {
                                 flags[agentNumber] = 1;
                                 try {
-                                    ratings.clear();
+
                                     ratings.add((int) msg.getContentObject());
                                 } catch (UnreadableException e) {
                                     e.printStackTrace();
@@ -226,7 +229,9 @@ public class Players extends Agent {
 
                     if(msg != null && msg.getOntology().equals("received")) {
                         receivedCnt++;
+                        //System.out.println("RECEIVED CNT " + receivedCnt);
                         if(receivedCnt == teamsCount){
+                            ratings.clear();
                             behaviour = WAITING_FOR_MESSAGE;
                             receivedCnt = 0;
                             return;
@@ -281,7 +286,8 @@ public class Players extends Agent {
                 rating += p;
             }
 
-            return rating / players.size();
+            int avg = rating / players.size();
+            return avg;
         }
 
         private int sum(byte[] a){
