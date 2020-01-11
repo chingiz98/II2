@@ -471,16 +471,21 @@ public class Team extends Agent {
 
         @Override
         public boolean done() {
+
+            String result = "";
+
             if(done){
-                System.out.println("-----------------");
-                System.out.println(getLocalName() + " FINISHED");
+                result+= "-----------------\n";
+                result+=getLocalName() + " FINISHED\n";
                 for (Player p : players) {
-                    System.out.println(p.name + " " + p.rating);
+                    result+= p.name + " " + p.rating + " " + p.getSex() + "\n";
                 }
 
-                System.out.println("AVG: " + avgRating(players));
-                System.out.println("-----------------");
+                result+="AVG: " + avgRating(players) + "\n";
+                result+= "-----------------\n";
+                System.out.println(result);
             }
+
 
             return done;
         }

@@ -37,12 +37,15 @@ public class Players extends Agent {
         super.setup();
 
 
+        /*
         System.out.println("LENGTH IS ");
         ArrayList arr = (ArrayList) Generator.combination("red", "black", "white", "green", "blue", "white", "green", "blue")
                 .simple(4).stream().collect(Collectors.toList());
 
         System.out.println(arr.size());
         System.out.println(arr.get(0));
+        
+         */
 
         String fileName = "inp.txt";
         String content;
@@ -129,7 +132,6 @@ public class Players extends Agent {
 
         private final int WAITING_FOR_MESSAGE = 0;
         private final int MAKING_DECISION = 1;
-
         private final int BROADCAST_CONTINUE = 2;
         private final int BROADCAST_STOP = 3;
 

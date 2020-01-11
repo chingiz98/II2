@@ -17,6 +17,13 @@ public class Player implements Serializable {
         this.sex = sex;
     }
 
+    public String getSex(){
+        if(sex)
+            return "MALE";
+        else
+            return "FEMALE";
+    }
+
 /*
     @Override
     protected void setup() {
