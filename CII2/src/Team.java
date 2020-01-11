@@ -5,6 +5,7 @@ import jade.core.behaviours.Behaviour;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 import jade.lang.acl.UnreadableException;
+import jade.wrapper.StaleProxyException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -176,6 +177,16 @@ public class Team extends Agent {
                         if(msg.getOntology().equals("stop")){
                             //System.out.println("STOP RECEIVED AGENT " + agentNumber);
                             sendMsg(ACLMessage.CFP, msg.getSender(), "received");
+
+                            if(agentNumber % 2 == 0){
+                                try {
+                                    getContainerController().createNewAgent("Match" + agentNumber / 2, "Match",
+                                            new Object[] {players, result2, teamsCount / 2}).start();
+                                } catch (StaleProxyException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+
                             done = true;
                             return;
                         }
@@ -474,6 +485,8 @@ public class Team extends Agent {
 
             String result = "";
 
+
+            /*
             if(done){
                 result+= "-----------------\n";
                 result+=getLocalName() + " FINISHED\n";
@@ -485,6 +498,7 @@ public class Team extends Agent {
                 result+= "-----------------\n";
                 System.out.println(result);
             }
+            */
 
 
             return done;

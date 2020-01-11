@@ -37,6 +37,7 @@ public class Players extends Agent {
         super.setup();
 
 
+
         /*
         System.out.println("LENGTH IS ");
         ArrayList arr = (ArrayList) Generator.combination("red", "black", "white", "green", "blue", "white", "green", "blue")
