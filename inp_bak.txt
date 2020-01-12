@@ -22,3 +22,29 @@ player21 82 1
 player22 99 1
 player23 171 0
 player24 190 0
+
+
+player1 50 1
+player2 129 1
+player3 345 1
+player4 77 0
+player5 30 1
+player6 75 1
+player7 92 1
+player8 234 1
+player9 320 0
+player10 170 1
+player11 140 1
+player12 120 0
+player13 135 0
+player14 261 0
+player15 44 0
+player16 48 1
+player17 89 1
+player18 111 0
+player19 324 0
+player20 23 0
+player21 82 1
+player22 99 1
+player23 171 0
+player24 190 0

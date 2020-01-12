@@ -26,12 +26,12 @@ public class Match extends Agent{
         teamsCount = (int) args[2];
         int a = 5;
 
-        /*
+
 
         String result = "";
 
         result+= "-----------------\n";
-        result+=getLocalName() + " FINISHED\n";
+        result+=getLocalName() + " STARTED\n";
         for (Player p : team1) {
             result+= p.name + " " + p.rating + " " + p.getSex() + "\n";
         }
@@ -46,9 +46,9 @@ public class Match extends Agent{
         }
 
         result+="AVG: " + avgRating(team2) + "\n";
-        result+= "-----------------\n";
+        //result+= "-----------------\n";
         System.out.println(result);
-        */
+
 
         addBehaviour(new MatchBehaviour());
 
@@ -60,7 +60,7 @@ public class Match extends Agent{
 
         int behaviour = 0;
 
-        int EPSILON = 30;
+        int EPSILON = 50;
 
         boolean done = false;
 
@@ -103,7 +103,7 @@ public class Match extends Agent{
                         //int EPS2 = EPSILON;
 
 
-                        if(difCount(t1) < delta1 && difCount(t2) < delta2
+                        if(difCount(t1) == difCount(t2)
                                 && Math.abs(avgRating(t1) - avgRating1) < EPSILON
                                 && Math.abs(avgRating(t2) - avgRating2) < EPSILON){
                             //EPS1 = Math.abs(avgRating(t1) - avgRating1);
@@ -117,7 +117,7 @@ public class Match extends Agent{
                             result2.clear();
                             result2.addAll(t2);
 
-                            System.out.println("TRANSITION");
+                            //System.out.println("TRANSITION");
 
                         }
 
@@ -165,7 +165,7 @@ public class Match extends Agent{
                 }
 
                 result+="AVG: " + avgRating(team2) + "\n";
-                result+= "-----------------\n";
+                //result+= "-----------------\n";
                 System.out.println(result);
 
             }
@@ -194,7 +194,7 @@ public class Match extends Agent{
                     girlsCount++;
             }
 
-            return Math.abs(boysCount - girlsCount);
+            return Math.abs(girlsCount);
         }
     }
 

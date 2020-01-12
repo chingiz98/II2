@@ -22,7 +22,6 @@ public class Main
         ContainerController cc = rt.createMainContainer(p);
         rt.setCloseVM(true);
 
-        System.out.println("SAS");
 
         try
         {
@@ -30,17 +29,7 @@ public class Main
 
             players = cc.createNewAgent("players", "Players.Players", args);
             players.start();
-            /*
-            questions = cc.createNewAgent("questions"+System.currentTimeMillis(),
-                                          "Questions.Questions",
-                                          args);
-            questions.start();
-            tickets = cc.createNewAgent("tickets"+System.currentTimeMillis(),
-                                        "Tickets.Tickets",
-                                        args);
-            tickets.start();
 
-             */
 
         }
         catch (StaleProxyException e)

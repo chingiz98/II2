@@ -31,6 +31,7 @@ public class Players extends Agent {
     private ArrayList<Player> players = new ArrayList<>();
 
     private int teamsCount = 2;
+    private int TEAM_SIZE = 4;
 
     @Override
     protected void setup() {
@@ -80,15 +81,21 @@ public class Players extends Agent {
             avgRating /= count;
 
 
-            cc.createNewAgent("team1", "Team", new Object[]{}).start();
-            cc.createNewAgent("team2", "Team", new Object[]{}).start();
-            cc.createNewAgent("team3", "Team", new Object[]{}).start();
-            cc.createNewAgent("team4", "Team", new Object[]{}).start();
-            cc.createNewAgent("team5", "Team", new Object[]{}).start();
-            cc.createNewAgent("team6", "Team", new Object[]{}).start();
 
 
-            teamsCount = 6;
+
+            teamsCount = players.size() / TEAM_SIZE;
+
+            if(teamsCount % 2 == 1){
+                teamsCount--;
+            }
+
+            for(int i = 1; i <= teamsCount; i++){
+                cc.createNewAgent("team" + i, "Team", new Object[]{}).start();
+            }
+
+
+
 
             int counter = 0;
             int currTeam = 1;
@@ -200,7 +207,7 @@ public class Players extends Agent {
                     if(retries == 5){
                         behaviour = BROADCAST_STOP;
                         //broadcast("stop");
-                        System.out.println("stopping " + retries );
+                        //System.out.println("stopping " + retries );
                         retries = 0;
                         //behaviour = WAITING_FOR_MESSAGE;
                         return;
@@ -209,14 +216,14 @@ public class Players extends Agent {
                     if(avgRating(ratings) < previousAvg){
                         previousAvg = avgRating(ratings);
                         retries = 0;
-                        System.out.println("new best " + previousAvg );
+                        //System.out.println("new best " + previousAvg );
                         behaviour = BROADCAST_CONTINUE;
                         //broadcast("continue");
                     } else {
                         retries++;
                         //broadcast("continue");
 
-                        System.out.println("retrying " + retries + " AVG: " + avgRating(ratings) + " prevAVG: " + previousAvg);
+                        //System.out.println("retrying " + retries + " AVG: " + avgRating(ratings) + " prevAVG: " + previousAvg);
                         behaviour = BROADCAST_CONTINUE;
                     }
 

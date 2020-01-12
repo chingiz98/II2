@@ -52,9 +52,6 @@ public class Team extends Agent {
         addBehaviour(new TeamBehaviour());
         String name = getLocalName();
 
-        System.out.println(name);
-
-
 
     }
 
@@ -69,7 +66,6 @@ public class Team extends Agent {
             for (Player p : players) {
                 avg += p.rating;
             }
-
             avg /= players.size();
         }
 
@@ -89,11 +85,7 @@ public class Team extends Agent {
                             e.printStackTrace();
                         }
 
-                        System.out.println("HELLO! " + msg.getContent());
-
                         calcAvg();
-
-
 
                         if(players.size() == TEAM_SIZE)
                             behaviour = PRE_OPTIMIZING;
@@ -113,7 +105,7 @@ public class Team extends Agent {
                             }
 
                             System.out.println("AVG: " + avgRating(players));
-                            System.out.println("-----------------");
+                            //System.out.println("-----------------");
                             teamsCount = Integer.parseInt(msg.getContent());
                             behaviour = OPTIMIZING_BEGIN_STEP_1;
                         }
@@ -148,6 +140,7 @@ public class Team extends Agent {
                     break;
 
                 case PLAYERS_RECEIVER_STEP_1:
+
                     mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
                     msg = myAgent.blockingReceive(mt, 100);
 
