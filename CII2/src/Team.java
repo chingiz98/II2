@@ -101,7 +101,7 @@ public class Team extends Agent {
                             System.out.println("-----------------");
                             System.out.println(getLocalName() + " STARTED");
                             for (Player p : players) {
-                                System.out.println(p.name + " " + p.rating);
+                                System.out.println(p.name + " " + p.rating + " " + p.getSex());
                             }
 
                             System.out.println("AVG: " + avgRating(players));
