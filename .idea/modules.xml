@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CII2/CII2.iml" filepath="$PROJECT_DIR$/CII2/CII2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/LAB2/LAB2.iml" filepath="$PROJECT_DIR$/LAB2/LAB2.iml" />
       <module fileurl="file://$PROJECT_DIR$/jade/jade.iml" filepath="$PROJECT_DIR$/jade/jade.iml" />
     </modules>
   </component>

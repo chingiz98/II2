@@ -25,7 +25,6 @@ public class Team extends Agent {
     private final int PLAYERS_RECEIVER_STEP_2 = 8;
     private final int TRYING_TO_OPTIMIZE_STEP_2 = 9;
     private final int WAITING_FOR_OPTIMIZED_USER_ARRAY_STEP_2 = 10;
-
     private final int WAITING_FOR_APPROVAL = 11;
 
 
@@ -214,17 +213,7 @@ public class Team extends Agent {
 
                         behaviour = WAITING_FOR_APPROVAL;
 
-                        /*
-                        temp_count++;
-                        if(temp_count == 3){
-                            done = true;
-                            return;
-                        }
 
-                         */
-
-                        //behaviour = PLAYERS_SENDER_STEP_2;
-                        //done = true;
                     }
 
                     int rating = 0;

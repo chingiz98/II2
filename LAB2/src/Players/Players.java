@@ -21,9 +21,6 @@ import java.util.stream.Collectors;
 public class Players extends Agent {
 
 
-    private int                 minComp = 0, maxComp = 0;
-    private int lastQFound = 0;
-    private int playersCount = 0;
 
     private int avgRating = 0;
     private int count = 0;
@@ -37,17 +34,6 @@ public class Players extends Agent {
     protected void setup() {
         super.setup();
 
-
-
-        /*
-        System.out.println("LENGTH IS ");
-        ArrayList arr = (ArrayList) Generator.combination("red", "black", "white", "green", "blue", "white", "green", "blue")
-                .simple(4).stream().collect(Collectors.toList());
-
-        System.out.println(arr.size());
-        System.out.println(arr.get(0));
-
-         */
 
         String fileName = "inp.txt";
         String content;
@@ -79,8 +65,6 @@ public class Players extends Agent {
             }
 
             avgRating /= count;
-
-
 
 
 

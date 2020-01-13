@@ -1,4 +1,4 @@
-package cii2;
+package lab2;
 
 import jade.core.*;
 import jade.core.Runtime;
@@ -8,11 +8,8 @@ import jade.wrapper.StaleProxyException;
 
 public class Main
 {
-    static AgentController questions;
-    static AgentController tickets;
 
     static AgentController players;
-    //static AgentController tickets;
 
     public static void main(String[] args)
     {
@@ -25,7 +22,6 @@ public class Main
 
         try
         {
-
 
             players = cc.createNewAgent("players", "Players.Players", args);
             players.start();
